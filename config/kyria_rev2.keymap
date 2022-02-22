@@ -7,24 +7,133 @@
 #include <behaviors.dtsi>
 #include <dt-bindings/zmk/keys.h>
 
+#define DEFAULT 0
+#define LOWER 1
+#define RAISE 2
+#define ADJUST 3
+#define ARROW 4
+
 / {
 	keymap {
 		compatible = "zmk,keymap";
 
-		default_layer {
-// ---------------------------------------------------------------------------------------------------------------------------------
-// |  ESC  |  Q  |  W  |  E   |  R   |  T   |                                          |  Y   |  U    |  I    |  O   |   P   |   \  |
-// |  TAB  |  A  |  S  |  D   |  F   |  G   |                                          |  H   |  J    |  K    |  L   |   ;   |   '  |
-// | SHIFT |  Z  |  X  |  C   |  V   |  B   | L SHIFT | L SHIFT |  | L SHIFT | L SHIFT |  N   |  M    |  ,    |  .   |   /   | CTRL |
-//                     | GUI  | DEL  | RET  |  SPACE  |   ESC   |  |   RET   |  SPACE  | TAB  | BSPC  | R-ALT |
-			bindings = <
-	&kp ESC   &kp Q &kp W &kp E &kp R &kp T                                                &kp Y &kp U  &kp I     &kp O   &kp P    &kp BSLH
-	&kp TAB   &kp A &kp S &kp D &kp F &kp G                                                &kp H &kp J  &kp K     &kp L   &kp SEMI &kp SQT
-	&kp LSHFT &kp Z &kp X &kp C &kp V &kp B &kp LSHFT &kp LSHFT        &kp LSHFT &kp LSHFT &kp N &kp M  &kp COMMA &kp DOT &kp FSLH &kp RCTRL
-	                 &kp LGUI &kp DEL &kp RET &kp SPACE &kp ESC        &kp RET  &kp SPACE  &kp TAB &kp BSPC &kp RALT
-			>;
-
-			sensor-bindings = <&inc_dec_kp C_VOL_UP C_VOL_DN &inc_dec_kp PG_UP PG_DN>;
+		conditional_layers {
+			compatible = "zmk,conditional_layers";
+			tri_layer {
+				if-layers = <LOWER RAISE>;
+				then-layer = <ADJUST>;
+			};
 		};
+
+		default_layer {
+			bindings = <
+/*
+ * Default: QWERTY
+ *
+ * ,-----------------------------------------.                              ,-----------------------------------------.
+ * |  Tab |   Q  |   W  |   E  |   R  |   T  |                              |   Y  |   U  |   I  |   O  |   P  | \ |  |
+ * |------+------+------+------+------+------|                              |------+------+------+------+------+------|
+ * |  GUI |   A  |   S  |   D  |   F  |   G  |                              |   H  |   J  |   K  |   L  | ;  : | ' "  |
+ * |------+------+------+------+------+------+-------------.  ,-------------+------+------+------+------+------+------|
+ * | LAlt |   Z  |   X  |   C  |   V  |   B  | VolDn| VolUp|  | Prev | Next |   N  |   M  | ,  < | . >  | /  ? |Enter |
+ * `--------------------+------+------+------+------+------|  |------+------+------+------+------+--------------------'
+ *                      |      | LShft| Lower| Bksp |Ctl/Es|  |Arr/En|Space |Raise |RShft |      |
+ *                      `----------------------------------'  `----------------------------------'
+ */
+	&kp TAB  &kp Q &kp W &kp E &kp R &kp T                                   &kp Y &kp U &kp I     &kp O   &kp P    &kp BSLH
+	&kp GUI  &kp A &kp S &kp D &kp F &kp G                                   &kp H &kp J &kp K     &kp L   &kp SEMI &kp SQT
+	&kp LALT &kp Z &kp X &kp C &kp V &kp B &kp C_VOL_DN &kp C_VOL_UP       &kp C_PREV &kp C_NEXT &kp N &kp M &kp COMMA &kp DOT &kp FSLH &kp ENTER
+	                     &none &kp LSHFT &mo LOWER &kp BSPC &mt LCTRL ESC  &lt ARROW RET &kp SPACE &mo RAISE &kp RSHFT &none
+			>;
+		};
+
+		lower_layer {
+			bindings = <
+/*
+ * Lower: Symbols
+ *
+ * ,-----------------------------------------.                              ,-----------------------------------------.
+ * |   ~  |   !  |   @  |   #  |   $  |   %  |                              |   ^  |   &  |   *  |   (  |   )  |      |
+ * |------+------+------+------+------+------|                              |------+------+------+------+------+------|
+ * |      |      |      |      |      |      |                              |      |   _  |   +  |   {  |   }  |      |
+ * |------+------+------+------+------+------+-------------.  ,-------------+------+------+------+------+------+------|
+ * |      |      |      |      |      |      |      |      |  |      |      |      |      |      |      |      |      |
+ * `--------------------+------+------+------+------+------|  |------+------+------+------+------+--------------------'
+ *                      |      |      |      |      |      |  |      |      |      |      |      |
+ *                      `----------------------------------'  `----------------------------------'
+ */
+	&kp TILDE &kp EXCL &kp AT &kp HASH &kp DLLR &kp PRCNT                    &kp CARET &kp AMPS &kp STAR &kp LPAR &kp RPAR &trans
+	&trans &trans &trans &trans &trans &trans                                &trans &kp UNDER &kp PLUS &kp LBRC &kp RBRC &trans
+	&trans &trans &trans &trans &trans &trans &trans &trans    &trans &trans &trans &trans &trans &trans &trans &trans
+	                     &trans &trans &trans &trans &trans    &trans &trans &trans &trans &trans
+			>;
+		};
+
+		raise_layer {
+			bindings = <
+/*
+ * Raise: Numbers
+ *
+ * ,-----------------------------------------.                              ,-----------------------------------------.
+ * |   `  |   1  |  2   |  3   |  4   |  5   |                              |   6  |   7  |   8  |   9  |   0  |      |
+ * |------+------+------+------+------+------|                              |------+------+------+------+------+------|
+ * |      |      |      |      |      |      |                              |      |   -  |   =  |   [  |   ]  |      |
+ * |------+------+------+------+------+------+-------------.  ,-------------+------+------+------+------+------+------|
+ * |      |      |      |      |      |      |      |      |  |      |      |      |      |      |      |      |      |
+ * `--------------------+------+------+------+------+------|  |------+------+------+------+------+--------------------'
+ *                      |      |      |      |      |      |  |      |      |      |      |      |
+ *                      `----------------------------------'  `----------------------------------'
+ */
+	&kp GRAVE &kp N1 &kp N2 &kp N3 &kp N4 &kp N5                             &kp N6 &kp N7 &kp N8 &kp N9 &kp N0 &trans
+	&trans &trans &trans &trans &trans &trans                                &trans &kp MINUS &kp EQUAL &kp LBKT &kp RBKT &trans
+	&trans &trans &trans &trans &trans &trans &trans &trans    &trans &trans &trans &trans &trans &trans &trans &trans
+	                     &trans &trans &trans &trans &trans    &trans &trans &trans &trans &trans
+			>;
+		};
+
+		adjust_layer {
+			bindings = <
+/*
+ * Adjust: Function keys
+ *
+ * ,-----------------------------------------.                              ,-----------------------------------------.
+ * |      |  F1  |  F2  |  F3  |  F4  |  F5  |                              |  F6  |  F7  |  F8  |  F9  |  F10 |      |
+ * |------+------+------+------+------+------|                              |------+------+------+------+------+------|
+ * |      |  F11 |  F12 |      |      |      |                              | Home | PgDn | PgUp | End  |      |      |
+ * |------+------+------+------+------+------+-------------.  ,-------------+------+------+------+------+------+------|
+ * |      |      |      |      |      |      |      |      |  |      |      |      |      |      |      |      |      |
+ * `--------------------+------+------+------+------+------|  |------+------+------+------+------+--------------------'
+ *                      |      |      |      |      |      |  |      |      |      |      |      |
+ *                      `----------------------------------'  `----------------------------------'
+ */
+	&trans &kp F1 &kp F2 &kp F3 &kp F4 &kp F5                                &kp F6 &kp F7 &kp F8 &kp F9 &kp F10 &trans
+	&trans &kp F11 &kp F12 &trans &trans &trans                              &kp HOME &kp PG_DN &kp PG_UP &kp END &trans &trans
+	&trans &trans &trans &trans &trans &trans &trans &trans    &trans &trans &trans &trans &trans &trans &trans &trans
+	                     &trans &trans &trans &trans &trans    &trans &trans &trans &trans &trans
+			>;
+		};
+
+		arrow_layer {
+			bindings = <
+/*
+ * Arrow
+ *
+ * ,-----------------------------------------.                              ,-----------------------------------------.
+ * |      |      |      |      |      |      |                              |      |      |      |      |      |      |
+ * |------+------+------+------+------+------|                              |------+------+------+------+------+------|
+ * |      |      |      |      |      |      |                              | Left | Down |  Up  |Right |Enter |      |
+ * |------+------+------+------+------+------+-------------.  ,-------------+------+------+------+------+------+------|
+ * |      |      |      |      |      |      |      |      |  |      |      |      |      |      |      |      |      |
+ * `--------------------+------+------+------+------+------|  |------+------+------+------+------+--------------------'
+ *                      |      |      |      |      |      |  |      |      |      |      |      |
+ *                      `----------------------------------'  `----------------------------------'
+ */
+	&trans &trans &trans &trans &trans &trans                                            &trans &trans &trans &trans &trans &trans
+	&trans &trans &trans &trans &trans &trans                                            &kp LEFT &kp DOWN &kp UP &kp RIGHT &kp ENTER &trans
+	&trans &trans &trans &trans &trans &trans &trans   &trans          &trans   &trans   &trans &trans &trans &trans &trans &trans
+	              &trans &trans &trans &trans &trans   &trans          &trans   &trans   &trans &trans
+			>;
+		};
+
 	};
 };
